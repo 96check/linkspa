@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import type { Spa } from "@/types/database";
 
 export async function getCurrentUser() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -26,7 +26,7 @@ export async function requireUser() {
  */
 export const requireSpa = cache(async () => {
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("spas")

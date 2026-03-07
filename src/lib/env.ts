@@ -14,6 +14,9 @@ export const env = {
     return getEnvVar("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   },
   get NEXT_PUBLIC_APP_URL() {
-    return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    return (
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+    );
   },
 };

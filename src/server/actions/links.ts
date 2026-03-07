@@ -39,7 +39,7 @@ export async function createLink(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("links").insert({
     spa_id: spa.id,
     ...parsed.data,
@@ -73,7 +73,7 @@ export async function updateLink(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("links")
     .update(parsed.data)
@@ -97,7 +97,7 @@ export async function deleteLink(formData: FormData): Promise<void> {
   const linkId = formData.get("id") as string;
   if (!linkId) return;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase
     .from("links")
     .delete()
@@ -117,7 +117,7 @@ export async function toggleLinkActive(formData: FormData): Promise<void> {
   const linkId = formData.get("id") as string;
   if (!linkId) return;
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch current state — never trust the client
   const { data: link } = await supabase

@@ -36,7 +36,7 @@ export async function createSpa(
   }
 
   const slug = slugResult.data;
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Check slug uniqueness
   const { data: existing } = await supabase

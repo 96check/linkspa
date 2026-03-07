@@ -54,7 +54,7 @@ export async function updateProfile(
     return { error: "Business name is required.", success: false };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("spas")
     .update({
@@ -107,7 +107,7 @@ export async function uploadAvatar(
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const filePath = `${spa.id}/avatar-${Date.now()}.${ext}`;
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Upload to Supabase Storage
   const { error: uploadError } = await supabase.storage
@@ -151,7 +151,7 @@ export async function removeAvatar(
 ): Promise<ActionState> {
   const { spa } = await requireSpa();
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Clear logo_url in database
   const { error } = await supabase
@@ -182,7 +182,7 @@ export async function updateTheme(
     return { error: "Theme is required.", success: false };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("spas")
     .update({ theme })
@@ -214,7 +214,7 @@ export async function addLink(
     };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("links").insert({
     spa_id: spa.id,
     ...parsed.data,
@@ -251,7 +251,7 @@ export async function editLink(
     };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("links")
     .update(parsed.data)
@@ -275,7 +275,7 @@ export async function removeLinkAction(formData: FormData): Promise<void> {
   const linkId = formData.get("id") as string;
   if (!linkId) return;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase
     .from("links")
     .delete()
@@ -503,7 +503,7 @@ export async function updateGoogleReview(
   const googleReviewUrl =
     (formData.get("google_review_url") as string)?.trim() || null;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("spas")
     .update({ google_review_url: googleReviewUrl })
@@ -525,7 +525,7 @@ export async function reorderLinks(orderedIds: string[]): Promise<void> {
   const { spa } = await requireSpa();
   if (!orderedIds.length) return;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   await Promise.all(
     orderedIds.map((id, index) =>
       supabase
@@ -548,7 +548,7 @@ export async function toggleLinkAction(formData: FormData): Promise<void> {
   const linkId = formData.get("id") as string;
   if (!linkId) return;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: link } = await supabase
     .from("links")
     .select("active")

@@ -18,7 +18,7 @@ export async function register(
     return { error: "Email and password are required." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signUp({ email, password });
 
@@ -40,7 +40,7 @@ export async function login(
     return { error: "Email and password are required." };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -52,7 +52,7 @@ export async function login(
 }
 
 export async function logout() {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
 }

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Spa, Link } from "@/types/database";
 
 export async function getSpaBySlug(slug: string): Promise<Spa | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("spas")
@@ -18,7 +18,7 @@ export async function getSpaBySlug(slug: string): Promise<Spa | null> {
 }
 
 export async function getLinksBySpaId(spaId: string): Promise<Link[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("links")

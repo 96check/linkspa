@@ -8,7 +8,7 @@ import type { Link } from "@/types/database";
  */
 export async function getLinksForCurrentUser(): Promise<Link[]> {
   const { spa } = await requireSpa();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("links")
@@ -29,7 +29,7 @@ export async function getLinksForCurrentUser(): Promise<Link[]> {
  */
 export async function getLinkById(linkId: string): Promise<Link | null> {
   const { spa } = await requireSpa();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("links")

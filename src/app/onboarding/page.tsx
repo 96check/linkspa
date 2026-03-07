@@ -6,7 +6,7 @@ import { OnboardingForm } from "./onboarding-form";
 export default async function OnboardingPage() {
   const user = await requireUser();
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: existingSpa } = await supabase
     .from("spas")
     .select("id")
