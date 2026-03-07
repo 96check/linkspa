@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { requireSpa } from "@/server/auth";
 import { getLinksForCurrentUser } from "@/server/links";
 import { ProfileSection } from "@/components/dashboard/profile-section";

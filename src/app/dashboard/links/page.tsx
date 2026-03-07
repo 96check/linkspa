@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import Link from "next/link";
 import { getLinksForCurrentUser } from "@/server/links";
 import { SortableLinkList } from "./sortable-link-list";

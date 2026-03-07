@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { requireSpa } from "@/server/auth";
 import { logout } from "@/server/actions/auth";
 import { env } from "@/lib/env";

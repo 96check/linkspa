@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import QRCode from "qrcode";
 import { requireSpa } from "@/server/auth";
 import { env } from "@/lib/env";

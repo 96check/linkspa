@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import Link from "next/link";
 import { createLink } from "@/server/actions/links";
 import { LinkForm } from "../link-form";

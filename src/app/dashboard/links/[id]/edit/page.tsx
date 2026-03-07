@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLinkById } from "@/server/links";
