@@ -1,5 +1,7 @@
 "use client";
 
+import { downloadQrAsPng } from "@/lib/download-qr";
+
 export function DownloadButton({
   dataUrl,
   filename,
@@ -7,11 +9,8 @@ export function DownloadButton({
   dataUrl: string;
   filename: string;
 }) {
-  function handleDownload() {
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = filename;
-    link.click();
+  async function handleDownload() {
+    await downloadQrAsPng(dataUrl, filename);
   }
 
   return (

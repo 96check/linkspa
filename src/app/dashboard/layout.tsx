@@ -5,7 +5,8 @@ import { logout } from "@/server/actions/auth";
 import { env } from "@/lib/env";
 import { CopyUrlButton } from "@/components/copy-url-button";
 import { QrSheet } from "@/components/dashboard/qr-sheet";
-import QRCode from "qrcode";
+import { buildStyledQrDataUrl } from "@/lib/styled-qr";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default async function DashboardLayout({
   children,
@@ -15,11 +16,11 @@ export default async function DashboardLayout({
   const { spa } = await requireSpa();
   const publicUrl = `${env.NEXT_PUBLIC_APP_URL}/${spa.slug}`;
 
-  const qrDataUrl = await QRCode.toDataURL(publicUrl, {
-    width: 400,
-    margin: 2,
-    color: { dark: "#f97316", light: "#000000" },
-  });
+  const qrOpts = { size: 400, accentSeed: spa.slug };
+  const [qrLight, qrDark] = await Promise.all([
+    buildStyledQrDataUrl(publicUrl, { ...qrOpts, mode: "light" as const }),
+    buildStyledQrDataUrl(publicUrl, { ...qrOpts, mode: "dark" as const }),
+  ]);
 
   return (
     <div className="min-h-[100dvh] bg-[#09090b]">
@@ -29,18 +30,13 @@ export default async function DashboardLayout({
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#09090b]/85 backdrop-blur-2xl">
         <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-5">
-          <a href="/dashboard" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-400 text-[11px] font-black text-black shadow-sm shadow-orange-500/20">
-              S
-            </div>
-            <span className="text-[14px] font-semibold tracking-tight text-white/90">
-              SalonLink
-            </span>
+          <a href="/dashboard" className="flex items-center text-[14px]">
+            <BrandLogo />
           </a>
 
           <div className="flex items-center gap-1">
             <CopyUrlButton url={publicUrl} />
-            <QrSheet qrDataUrl={qrDataUrl} publicUrl={publicUrl} slug={spa.slug} />
+            <QrSheet qrLightUrl={qrLight} qrDarkUrl={qrDark} publicUrl={publicUrl} slug={spa.slug} />
             <a
               href={`/${spa.slug}`}
               target="_blank"

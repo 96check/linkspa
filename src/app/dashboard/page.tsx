@@ -7,6 +7,8 @@ import { DashboardLinkList } from "@/components/dashboard/dashboard-link-list";
 import { AddLinkSheet } from "@/components/dashboard/add-link-sheet";
 import { ThemeEditor } from "@/components/dashboard/theme-editor";
 import { ReviewSection } from "@/components/dashboard/review-section";
+import { DashboardQrCard } from "@/components/dashboard/dashboard-qr-card";
+import { buildStyledQrDataUrl } from "@/lib/styled-qr";
 import { env } from "@/lib/env";
 
 export default async function DashboardPage() {
@@ -14,6 +16,12 @@ export default async function DashboardPage() {
   const links = await getLinksForCurrentUser();
   const activeCount = links.filter((l) => l.active).length;
   const publicUrl = `${env.NEXT_PUBLIC_APP_URL}/${spa.slug}`;
+
+  const qrOpts = { size: 400, accentSeed: spa.slug };
+  const [qrLight, qrDark] = await Promise.all([
+    buildStyledQrDataUrl(publicUrl, { ...qrOpts, mode: "light" }),
+    buildStyledQrDataUrl(publicUrl, { ...qrOpts, mode: "dark" }),
+  ]);
 
   return (
     <div className="animate-slide-up space-y-5">
@@ -78,6 +86,9 @@ export default async function DashboardPage() {
           <ReviewSection currentReviewUrl={spa.google_review_url ?? null} />
         </div>
       </section>
+
+      {/* ── QR Code Card ── */}
+      <DashboardQrCard qrLightUrl={qrLight} qrDarkUrl={qrDark} publicUrl={publicUrl} slug={spa.slug} />
 
       {/* ── Appearance Card ── */}
       <section className="overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.02]">

@@ -1,7 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState, useCallback } from "react";
+import Footer from "@/components/footer";
+import { BrandLogo } from "@/components/brand-logo";
+import {
+  Instagram,
+  TikTokDark as TikTok,
+  Facebook,
+  GoogleMaps,
+  Booking,
+  YouTube,
+  WhatsApp,
+  LinkedIn,
+  Snapchat,
+} from "@/components/icons/platform-icons";
 
 /* ── Scroll Reveal Hook ── */
 function useReveal() {
@@ -71,18 +85,329 @@ function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNod
   );
 }
 
-function StepCard({ step, title, description, delay }: { step: number; title: string; description: string; delay: string }) {
+/* ── How It Works Interactive Section ── */
+
+const HOW_IT_WORKS_STEPS = [
+  {
+    number: 1,
+    title: "Create your account",
+    description: "Sign up free with your email. No credit card, no commitments — just instant access.",
+  },
+  {
+    number: 2,
+    title: "Add your links",
+    description: "Drop in your Instagram, Facebook, TikTok, Google Maps, booking page — all in one place.",
+  },
+  {
+    number: 3,
+    title: "Share & grow",
+    description: "Get your unique link and QR code. Print it, share it, and watch your connections grow.",
+  },
+];
+
+function PhoneScreenRegister() {
   return (
-    <div className={`reveal ${delay} relative flex flex-col items-center text-center`}>
-      <div className="relative mb-6">
-        <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-orange-500/30 to-yellow-500/20 blur-lg animate-pulse-glow" />
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-orange-600 text-2xl font-bold text-black shadow-xl shadow-orange-500/30">
-          {step}
+    <div className="animate-screen-fade flex flex-col items-center px-4 pt-6 pb-4">
+      {/* Logo */}
+      <Image src="/logo.png" alt="SalonLink" width={36} height={36} className="mb-4 h-9 w-9 rounded-full shadow-lg shadow-orange-500/30" />
+      <p className="mb-1 text-[13px] font-bold text-white">Create your page</p>
+      <p className="mb-5 text-[10px] text-zinc-500">Free forever · No credit card</p>
+
+      {/* Fields */}
+      <div className="w-full space-y-2.5">
+        <div className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2.5">
+          <p className="text-[9px] text-zinc-600 mb-0.5">Email address</p>
+          <p className="text-[11px] text-zinc-400">you@example.com</p>
+        </div>
+        <div className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2.5">
+          <p className="text-[9px] text-zinc-600 mb-0.5">Password</p>
+          <p className="text-[11px] text-zinc-500 tracking-widest">••••••••</p>
+        </div>
+        <div className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-yellow-400 py-2.5 text-center text-[11px] font-bold text-black shadow-md shadow-orange-500/30">
+          Get started free →
         </div>
       </div>
-      <h3 className="mb-2 text-lg font-semibold text-white">{title}</h3>
-      <p className="max-w-[280px] text-sm leading-relaxed text-gray-400">{description}</p>
+
+      {/* Social proof */}
+      <p className="mt-4 text-[9px] text-zinc-700">Join 500+ spa owners</p>
     </div>
+  );
+}
+
+function PhoneScreenLinks() {
+  const links = [
+    { label: "Instagram", Icon: Instagram },
+    { label: "TikTok", Icon: TikTok },
+    { label: "Google Maps", Icon: GoogleMaps },
+    { label: "Book Now", Icon: Booking },
+  ];
+
+  return (
+    <div className="animate-screen-fade px-3 pt-4 pb-3">
+      {/* Header */}
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-[12px] font-bold text-white">My Links</p>
+        <div className="flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br from-orange-500 to-yellow-400 text-[10px] font-black text-black">+</div>
+      </div>
+
+      {/* Link rows */}
+      <div className="space-y-1.5">
+        {links.map((link) => (
+          <div key={link.label} className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-2">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+              <link.Icon className="h-5 w-5" />
+            </div>
+            <span className="flex-1 text-[11px] font-medium text-zinc-300">{link.label}</span>
+            <div className="h-2.5 w-2.5 rounded-full border border-emerald-500/40 bg-emerald-500/20" />
+          </div>
+        ))}
+      </div>
+
+      {/* Add link CTA */}
+      <button className="mt-3 w-full rounded-lg border border-dashed border-white/[0.1] py-2 text-[10px] text-zinc-600">
+        + Add new link
+      </button>
+    </div>
+  );
+}
+
+function PhoneScreenShare() {
+  // Fixed QR data modules: [x, y, isOrange]
+  const dataModules: [number, number, boolean][] = [
+    // row 1 (y=46)
+    [46,46,false],[54,46,false],[62,46,false],[70,46,true],[78,46,false],[86,46,false],
+    // row 2 (y=54)
+    [46,54,false],[54,54,true],[70,54,false],[78,54,false],[86,54,false],
+    // row 3 (y=62)
+    [46,62,false],[62,62,false],[78,62,false],[86,62,true],
+    // row 4 (y=70)
+    [46,70,true],[54,70,false],[62,70,false],[70,70,false],[86,70,false],
+    // row 5 (y=78)
+    [54,78,false],[62,78,true],[70,78,false],[78,78,false],
+    // row 6 (y=86)
+    [46,86,false],[54,86,false],[70,86,true],[78,86,false],[86,86,false],
+  ];
+
+  return (
+    <div className="animate-screen-fade flex flex-col items-center px-4 pt-5 pb-4">
+      <p className="mb-4 text-[12px] font-bold text-white">Share your page</p>
+
+      {/* QR Code mock */}
+      <div className="relative mb-4">
+        <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-orange-500/20 to-yellow-500/10 blur-md" />
+        <div className="relative flex h-32 w-32 items-center justify-center rounded-2xl bg-white p-3 shadow-lg">
+          <svg viewBox="0 0 100 100" className="h-full w-full">
+            {/* ── Corner: Top-left ── */}
+            <rect x="4" y="4" width="34" height="34" rx="6" ry="6" fill="#111" />
+            <rect x="9" y="9" width="24" height="24" rx="3" ry="3" fill="white" />
+            <rect x="13" y="13" width="16" height="16" rx="2" ry="2" fill="#111" />
+
+            {/* ── Corner: Top-right ── */}
+            <rect x="62" y="4" width="34" height="34" rx="6" ry="6" fill="#111" />
+            <rect x="67" y="9" width="24" height="24" rx="3" ry="3" fill="white" />
+            <rect x="71" y="13" width="16" height="16" rx="2" ry="2" fill="#111" />
+
+            {/* ── Corner: Bottom-left ── */}
+            <rect x="4" y="62" width="34" height="34" rx="6" ry="6" fill="#111" />
+            <rect x="9" y="67" width="24" height="24" rx="3" ry="3" fill="white" />
+            <rect x="13" y="71" width="16" height="16" rx="2" ry="2" fill="#111" />
+
+            {/* ── Data modules (bottom-right area) ── */}
+            {dataModules.map(([x, y, isOrange], i) => (
+              <rect
+                key={i}
+                x={x} y={y}
+                width="6" height="6"
+                rx="1.5" ry="1.5"
+                fill={isOrange ? "#f97316" : "#111"}
+              />
+            ))}
+          </svg>
+        </div>
+      </div>
+
+      {/* URL chip */}
+      <div className="mb-3 flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5">
+        <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        <span className="text-[10px] text-zinc-400">salonlink.app/</span>
+        <span className="text-[10px] font-semibold text-orange-400">mybeautyspa</span>
+      </div>
+
+      {/* Share button */}
+      <div className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-yellow-400 py-2.5 text-center text-[11px] font-bold text-black">
+        Share link
+      </div>
+    </div>
+  );
+}
+
+const PHONE_SCREENS = [PhoneScreenRegister, PhoneScreenLinks, PhoneScreenShare];
+
+function HowItWorksSection() {
+  const [activeStep, setActiveStep] = useState(0);
+  const [screenKey, setScreenKey] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const goToStep = useCallback((idx: number) => {
+    setActiveStep(idx);
+    setScreenKey((k) => k + 1);
+  }, []);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setActiveStep((prev) => {
+        const next = (prev + 1) % 3;
+        setScreenKey((k) => k + 1);
+        return next;
+      });
+    }, 3500);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const ActiveScreen = PHONE_SCREENS[activeStep];
+
+  return (
+    <section id="how-it-works" className="relative z-10 overflow-hidden border-y border-white/[0.04] bg-white/[0.01] py-28">
+      {/* Background glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="h-[500px] w-[800px] rounded-full bg-orange-500/[0.03] blur-[120px]" />
+      </div>
+
+      <div className="relative mx-auto max-w-6xl px-6">
+        {/* Header */}
+        <div className="reveal mb-14 text-center">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-orange-400">How it works</p>
+          <h2 className="text-3xl font-bold md:text-5xl">
+            Ready in <GradientText shimmer>three steps</GradientText>
+          </h2>
+          <p className="mx-auto mt-5 max-w-lg text-base text-gray-400">
+            No technical skills required. Set up your spa&apos;s link page faster than it takes to make a cup of coffee.
+          </p>
+        </div>
+
+        {/* Main layout */}
+        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-12">
+
+          {/* ── Step tabs (left on desktop, top on mobile) ── */}
+          <div className="w-full space-y-3 lg:w-[300px] lg:shrink-0">
+            {HOW_IT_WORKS_STEPS.map((step, i) => {
+              const isActive = activeStep === i;
+              return (
+                <button
+                  key={i}
+                  onClick={() => {
+                    if (timerRef.current) clearInterval(timerRef.current);
+                    goToStep(i);
+                    timerRef.current = setInterval(() => {
+                      setActiveStep((prev) => {
+                        const next = (prev + 1) % 3;
+                        setScreenKey((k) => k + 1);
+                        return next;
+                      });
+                    }, 3500);
+                  }}
+                  className={`w-full rounded-2xl border p-4 text-left transition-all duration-300 ${
+                    isActive
+                      ? "border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-yellow-500/5 shadow-lg shadow-orange-500/5"
+                      : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    {/* Step number */}
+                    <div className={`relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
+                      isActive
+                        ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-black shadow-md shadow-orange-500/30"
+                        : "bg-white/[0.06] text-zinc-500"
+                    }`}>
+                      {isActive && (
+                        <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-orange-500/30 to-yellow-500/20 blur-sm animate-pulse-glow" />
+                      )}
+                      <span className="relative">{step.number}</span>
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold transition-colors duration-300 ${isActive ? "text-white" : "text-zinc-400"}`}>
+                        {step.title}
+                      </p>
+                      <p className={`mt-1 text-xs leading-relaxed transition-all duration-300 ${isActive ? "text-zinc-400 max-h-20 opacity-100" : "text-zinc-600 max-h-0 overflow-hidden opacity-0 lg:max-h-20 lg:opacity-100"}`}>
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  {isActive && (
+                    <div className="mt-3 h-0.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                      <div key={screenKey} className="animate-progress h-full rounded-full bg-gradient-to-r from-orange-500 to-yellow-400" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Phone preview (center/right) ── */}
+          <div className="relative flex flex-1 justify-center">
+            {/* Outer glow */}
+            <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-b from-orange-500/15 via-orange-500/5 to-transparent blur-3xl" />
+            <div className="absolute -inset-4 animate-pulse-glow rounded-[3rem] bg-gradient-to-b from-yellow-500/10 to-transparent blur-2xl" />
+
+            {/* Phone frame */}
+            <div className="relative w-[220px] overflow-hidden rounded-[2.5rem] border-[3px] border-white/[0.08] bg-gradient-to-b from-[#111] to-[#0a0a0a] p-2 shadow-2xl shadow-black/50">
+              {/* Notch */}
+              <div className="absolute left-1/2 top-0 z-20 h-6 w-24 -translate-x-1/2 rounded-b-2xl bg-black" />
+
+              {/* Screen */}
+              <div className="relative min-h-[320px] overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#0d0d0d] to-[#080808] pt-7">
+                {/* Status bar */}
+                <div className="flex items-center justify-between px-4 py-1.5">
+                  <span className="text-[9px] font-semibold text-zinc-500">9:41</span>
+                  <div className="flex items-center gap-1">
+                    <div className="h-1 w-3 rounded-sm bg-zinc-600" />
+                    <div className="h-1.5 w-1 rounded-sm bg-zinc-600" />
+                    <div className="h-2 w-2 rounded-full border border-zinc-600" />
+                  </div>
+                </div>
+
+                {/* Dynamic screen content */}
+                <ActiveScreen key={screenKey} />
+              </div>
+
+              {/* Home indicator */}
+              <div className="flex justify-center py-2">
+                <div className="h-1 w-16 rounded-full bg-white/20" />
+              </div>
+            </div>
+
+            {/* Step dots indicator */}
+            <div className="absolute -bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
+              {HOW_IT_WORKS_STEPS.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    if (timerRef.current) clearInterval(timerRef.current);
+                    goToStep(i);
+                    timerRef.current = setInterval(() => {
+                      setActiveStep((prev) => {
+                        const next = (prev + 1) % 3;
+                        setScreenKey((k) => k + 1);
+                        return next;
+                      });
+                    }, 3500);
+                  }}
+                  className={`rounded-full transition-all duration-300 ${
+                    activeStep === i
+                      ? "w-5 h-1.5 bg-orange-400"
+                      : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -161,14 +486,161 @@ const BoltIcon = () => (
   </svg>
 );
 
-/* ── Mock social icons for the phone preview ── */
+/* ── Mock social links for the phone preview ── */
 const MOCK_LINKS = [
-  { label: "Instagram", icon: "M7.8 2h8.4C19 2 22 5 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C5 22 2 19 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z", color: "from-pink-500 to-orange-400" },
-  { label: "Facebook", icon: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z", color: "from-blue-500 to-blue-400" },
-  { label: "TikTok", icon: "M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z", color: "from-gray-200 to-gray-100" },
-  { label: "Google Maps", icon: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z", color: "from-green-500 to-emerald-400" },
-  { label: "Book Now", icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z", color: "from-orange-500 to-yellow-400" },
+  { label: "Instagram", Icon: Instagram },
+  { label: "Facebook", Icon: Facebook },
+  { label: "TikTok", Icon: TikTok },
+  { label: "Google Maps", Icon: GoogleMaps },
+  { label: "Book Now", Icon: Booking },
 ];
+
+/* ── Floating hero icons — each with unique signature animation ── */
+const HERO_ICONS: {
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  pos: string;
+  orbit: string;
+  orbitDur: string;
+  glow: string;
+  delay: string;
+  size: string;
+  color: string;
+}[] = [
+  // LEFT SIDE
+  {
+    Icon: Instagram, pos: "left-[3%] top-[14%]",
+    orbit: "orbit-instagram", orbitDur: "14s",
+    glow: "rgba(225,48,108,0.12)", color: "#E1306C",
+    delay: "0s", size: "h-8 w-8",
+  },
+  {
+    Icon: TikTok, pos: "left-[15%] top-[2%]",
+    orbit: "orbit-tiktok", orbitDur: "10s",
+    glow: "rgba(37,244,238,0.10)", color: "#25F4EE",
+    delay: "0.6s", size: "h-7 w-7",
+  },
+  {
+    Icon: Facebook, pos: "left-[2%] top-[44%]",
+    orbit: "orbit-facebook", orbitDur: "18s",
+    glow: "rgba(8,102,255,0.10)", color: "#0866FF",
+    delay: "1.2s", size: "h-7 w-7",
+  },
+  {
+    Icon: Snapchat, pos: "left-[11%] bottom-[18%]",
+    orbit: "orbit-snapchat", orbitDur: "11s",
+    glow: "rgba(255,252,0,0.08)", color: "#FFFC00",
+    delay: "2s", size: "h-6 w-6",
+  },
+  // RIGHT SIDE
+  {
+    Icon: YouTube, pos: "right-[13%] top-[3%]",
+    orbit: "orbit-youtube", orbitDur: "16s",
+    glow: "rgba(255,0,0,0.10)", color: "#FF0000",
+    delay: "0.3s", size: "h-7 w-7",
+  },
+  {
+    Icon: WhatsApp, pos: "right-[2%] top-[18%]",
+    orbit: "orbit-whatsapp", orbitDur: "13s",
+    glow: "rgba(37,211,102,0.12)", color: "#25D366",
+    delay: "0.9s", size: "h-8 w-8",
+  },
+  {
+    Icon: LinkedIn, pos: "right-[3%] top-[46%]",
+    orbit: "orbit-linkedin", orbitDur: "20s",
+    glow: "rgba(10,102,194,0.10)", color: "#0A66C2",
+    delay: "1.6s", size: "h-7 w-7",
+  },
+  {
+    Icon: GoogleMaps, pos: "right-[12%] bottom-[16%]",
+    orbit: "orbit-gmaps", orbitDur: "12s",
+    glow: "rgba(52,168,83,0.08)", color: "#34A853",
+    delay: "2.3s", size: "h-6 w-6",
+  },
+];
+
+/* Curved paths from each icon position → hero center */
+const HERO_PATHS = [
+  { d: "M70,100 C200,70 350,160 500,300",   i: 0 },
+  { d: "M170,25 C290,90 400,170 500,280",   i: 1 },
+  { d: "M50,340 C170,320 340,310 490,310",  i: 2 },
+  { d: "M130,610 C270,500 400,380 490,330", i: 3 },
+  { d: "M930,25 C800,100 660,190 510,280",  i: 4 },
+  { d: "M970,135 C840,170 690,230 520,300", i: 5 },
+  { d: "M950,355 C830,340 680,320 520,310", i: 6 },
+  { d: "M870,600 C740,490 620,370 520,330", i: 7 },
+];
+
+function HeroFloatingIcons() {
+  return (
+    <div className="hero-icons-layer pointer-events-none absolute inset-0 hidden overflow-hidden lg:block" aria-hidden="true">
+      {/* ── SVG: glowing dots traveling along invisible paths ── */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 1000 750"
+        preserveAspectRatio="none"
+        fill="none"
+      >
+        <defs>
+          {HERO_ICONS.map((icon, i) => (
+            <radialGradient key={i} id={`dot-${i}`}>
+              <stop offset="0%" stopColor={icon.color} stopOpacity="0.9" />
+              <stop offset="35%" stopColor={icon.color} stopOpacity="0.3" />
+              <stop offset="100%" stopColor={icon.color} stopOpacity="0" />
+            </radialGradient>
+          ))}
+        </defs>
+
+        {HERO_PATHS.map((p) => {
+          const icon = HERO_ICONS[p.i];
+          const d = parseFloat(icon.delay);
+          const sp = "0.4 0 0.6 1"; // smooth easing
+          return (
+            <g key={p.i}>
+              {/* Soft glow halo */}
+              <circle r="8" fill={`url(#dot-${p.i})`}>
+                <animateMotion dur="7s" repeatCount="indefinite" begin={`${d}s`} path={p.d} keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.4 0 0.2 1" />
+                <animate attributeName="opacity" dur="7s" repeatCount="indefinite" begin={`${d}s`} values="0;0.5;0.7;0.7;0.3;0" keyTimes="0;0.1;0.3;0.7;0.9;1" calcMode="spline" keySplines={`${sp};${sp};${sp};${sp};${sp}`} />
+              </circle>
+              {/* Bright core */}
+              <circle r="1.5" fill={icon.color}>
+                <animateMotion dur="7s" repeatCount="indefinite" begin={`${d}s`} path={p.d} keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.4 0 0.2 1" />
+                <animate attributeName="opacity" dur="7s" repeatCount="indefinite" begin={`${d}s`} values="0;0.6;0.9;0.9;0.4;0" keyTimes="0;0.1;0.3;0.7;0.9;1" calcMode="spline" keySplines={`${sp};${sp};${sp};${sp};${sp}`} />
+              </circle>
+
+              {/* Wave 2 — offset, smaller */}
+              <circle r="6" fill={`url(#dot-${p.i})`}>
+                <animateMotion dur="7s" repeatCount="indefinite" begin={`${d + 3.5}s`} path={p.d} keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.4 0 0.2 1" />
+                <animate attributeName="opacity" dur="7s" repeatCount="indefinite" begin={`${d + 3.5}s`} values="0;0.35;0.5;0.5;0.2;0" keyTimes="0;0.1;0.3;0.7;0.9;1" calcMode="spline" keySplines={`${sp};${sp};${sp};${sp};${sp}`} />
+              </circle>
+              <circle r="1" fill={icon.color}>
+                <animateMotion dur="7s" repeatCount="indefinite" begin={`${d + 3.5}s`} path={p.d} keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.4 0 0.2 1" />
+                <animate attributeName="opacity" dur="7s" repeatCount="indefinite" begin={`${d + 3.5}s`} values="0;0.4;0.7;0.7;0.3;0" keyTimes="0;0.1;0.3;0.7;0.9;1" calcMode="spline" keySplines={`${sp};${sp};${sp};${sp};${sp}`} />
+              </circle>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* ── Floating platform icons ── */}
+      {HERO_ICONS.map((icon, i) => (
+        <div
+          key={i}
+          className={`absolute ${icon.pos}`}
+          style={{
+            animation: `icon-emerge 0.8s cubic-bezier(0.16,1,0.3,1) ${icon.delay} both, ${icon.orbit} ${icon.orbitDur} ease-in-out ${icon.delay} infinite`,
+          }}
+        >
+          <div
+            className="rounded-2xl border border-white/[0.08] bg-black/60 p-3 backdrop-blur-md"
+            style={{ boxShadow: `0 0 15px 2px ${icon.glow}` }}
+          >
+            <icon.Icon className={icon.size} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /* ══════════════════════════════════════════════════════════
    ██  MAIN PAGE
@@ -190,11 +662,8 @@ export default function HomePage() {
       {/* ── Navigation ── */}
       <nav className="animate-fade-in relative z-20 border-b border-white/[0.04]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-1.5 text-xl font-bold tracking-tight">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500 text-sm font-black text-black">
-              S
-            </div>
-            <GradientText>SalonLink</GradientText>
+          <Link href="/" className="flex items-center text-xl">
+            <BrandLogo />
           </Link>
           <div className="flex items-center gap-2">
             <Link
@@ -215,6 +684,7 @@ export default function HomePage() {
 
       {/* ── Hero ── */}
       <header className="relative z-10 mx-auto max-w-6xl px-6 pb-10 pt-20 text-center md:pt-32">
+        <HeroFloatingIcons />
         <div className="animate-fade-up mb-8 inline-flex items-center gap-2.5 rounded-full border border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-yellow-500/5 px-5 py-2 text-sm font-medium text-orange-300 backdrop-blur-sm">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
@@ -272,44 +742,81 @@ export default function HomePage() {
             <div className="absolute left-1/2 top-0 z-20 h-7 w-28 -translate-x-1/2 rounded-b-2xl bg-black" />
 
             {/* Screen */}
-            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#0d0d0d] to-[#080808]">
-              <div className="animate-phone-scroll px-5 pb-8 pt-10">
-                {/* Profile */}
+            <div className="relative overflow-hidden rounded-[2rem] bg-[#0c0c0c]">
+              {/* Top ambient glow */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(249,115,22,0.12),transparent)]" />
+
+              <div className="animate-phone-scroll relative px-5 pb-6 pt-12">
+                {/* ── Avatar ── */}
                 <div className="flex flex-col items-center">
                   <div className="relative">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-orange-400 to-yellow-500 opacity-60 blur-md" />
-                    <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gradient-to-br from-orange-400 to-yellow-500 p-[2.5px]">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-[#111] text-2xl">
-                        ✨
+                    <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-orange-500/40 to-amber-400/20 blur-xl" />
+                    <div className="relative h-[72px] w-[72px] rounded-full bg-gradient-to-br from-orange-500 to-amber-400 p-[2.5px]">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-[#0c0c0c]">
+                        <Image src="/logo.png" alt="S" width={36} height={36} className="h-9 w-9 rounded-full" />
                       </div>
                     </div>
                   </div>
-                  <h3 className="mt-4 text-base font-bold text-white">Serenity Spa</h3>
-                  <p className="text-xs text-gray-500">@serenityspa &middot; Ho Chi Minh City</p>
-                  <p className="mt-2 max-w-[200px] text-center text-[11px] leading-relaxed text-gray-500">
-                    Premium massage & beauty treatments. Book your bliss today.
-                  </p>
+
+                  <div className="mt-3.5 flex items-center gap-1">
+                    <h3 className="text-[15px] font-bold tracking-tight text-white">Serenity Spa</h3>
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-orange-400">
+                      <path fillRule="evenodd" d="M16.403 12.652a3 3 0 000-5.304 3 3 0 00-3.75-3.751 3 3 0 00-5.305 0 3 3 0 00-3.751 3.75 3 3 0 000 5.305 3 3 0 003.75 3.751 3 3 0 005.305 0 3 3 0 003.751-3.75zm-2.546-4.46a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="mt-0.5 text-[10px] text-zinc-500">New York, NY</p>
                 </div>
 
-                {/* Links */}
-                <div className="mt-5 space-y-2.5">
+                {/* ── Contact row ── */}
+                <div className="mt-4 flex items-center justify-center gap-2.5">
+                  {[
+                    { d: "M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" },
+                    { d: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6" },
+                    { d: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0zM12 7a3 3 0 100 6 3 3 0 000-6z" },
+                  ].map((icon, i) => (
+                    <div key={i} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-orange-400">
+                        <path d={icon.d} />
+                      </svg>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ── Divider ── */}
+                <div className="mx-auto my-4 h-px w-4/5 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+
+                {/* ── Links ── */}
+                <div className="space-y-2">
                   {MOCK_LINKS.map((link) => (
                     <div
                       key={link.label}
-                      className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 transition-colors hover:bg-white/[0.06]"
+                      className="flex items-center gap-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-2.5"
                     >
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${link.color} p-1.5`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-full w-full text-white">
-                          <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
-                        </svg>
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
+                        <link.Icon className="h-4 w-4" />
                       </div>
-                      <span className="text-sm font-medium text-gray-200">{link.label}</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="ml-auto h-4 w-4 text-gray-600">
+                      <span className="flex-1 text-[11px] font-semibold text-white/90">{link.label}</span>
+                      <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-zinc-700">
                         <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
                       </svg>
                     </div>
                   ))}
                 </div>
+
+                {/* ── Google Review ── */}
+                <div className="mt-3 flex items-center justify-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-amber-400">
+                      <path fillRule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clipRule="evenodd" />
+                    </svg>
+                  ))}
+                  <span className="ml-1 text-[9px] text-zinc-600">4.9</span>
+                </div>
+
+                {/* ── Powered by ── */}
+                <p className="mt-4 text-center text-[8px] tracking-wide text-zinc-700">
+                  powered by <span className="font-semibold text-zinc-500">SalonLink</span>
+                </p>
               </div>
             </div>
           </div>
@@ -390,49 +897,7 @@ export default function HomePage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section id="how-it-works" className="relative z-10 overflow-hidden border-y border-white/[0.04] bg-white/[0.01] py-28">
-        <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="h-[500px] w-[800px] rounded-full bg-orange-500/[0.03] blur-[120px]" />
-        </div>
-        <div className="relative mx-auto max-w-6xl px-6">
-          <div className="reveal mb-16 text-center">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-orange-400">
-              How it works
-            </p>
-            <h2 className="text-3xl font-bold md:text-5xl">
-              Ready in <GradientText shimmer>three steps</GradientText>
-            </h2>
-            <p className="mx-auto mt-5 max-w-lg text-base text-gray-400">
-              No technical skills required. Set up your spa&apos;s link page
-              faster than it takes to make a cup of coffee.
-            </p>
-          </div>
-
-          {/* Connecting line (desktop only) */}
-          <div className="absolute left-1/2 top-[55%] hidden h-px w-[55%] -translate-x-1/2 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent md:block" />
-
-          <div className="grid gap-16 md:grid-cols-3 md:gap-8">
-            <StepCard
-              delay="delay-100"
-              step={1}
-              title="Create your account"
-              description="Sign up free with your email. No credit card, no commitments — just instant access."
-            />
-            <StepCard
-              delay="delay-300"
-              step={2}
-              title="Add your links"
-              description="Drop in your Instagram, Facebook, TikTok, Google Maps, booking page — all in one place."
-            />
-            <StepCard
-              delay="delay-500"
-              step={3}
-              title="Share & grow"
-              description="Get your unique link and QR code. Print it, share it, and watch your connections grow."
-            />
-          </div>
-        </div>
-      </section>
+      <HowItWorksSection />
 
       {/* ── Testimonials ── */}
       <section className="relative z-10 py-28">
@@ -512,30 +977,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-white/[0.04]">
-        <div className="mx-auto max-w-6xl px-6 py-12">
-          <div className="flex flex-col items-center justify-between gap-8 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-orange-500 to-yellow-500 text-xs font-black text-black">
-                S
-              </div>
-              <span className="text-sm font-bold tracking-tight">
-                <GradientText>SalonLink</GradientText>
-              </span>
-            </div>
-
-            <div className="flex items-center gap-8 text-sm text-gray-500">
-              <Link href="/login" className="transition-colors hover:text-gray-300">Sign in</Link>
-              <Link href="/register" className="transition-colors hover:text-gray-300">Register</Link>
-              <Link href="#how-it-works" className="transition-colors hover:text-gray-300">How it works</Link>
-            </div>
-
-            <p className="text-xs text-gray-600">
-              &copy; {new Date().getFullYear()} SalonLink
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

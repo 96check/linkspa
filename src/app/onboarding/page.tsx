@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/server/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingForm } from "./onboarding-form";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default async function OnboardingPage() {
   const user = await requireUser();
@@ -29,14 +30,8 @@ export default async function OnboardingPage() {
 
       <div className="relative z-10 w-full max-w-sm">
         {/* Logo */}
-        <p className="flex items-center justify-center gap-1.5 text-lg font-bold tracking-tight text-white">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500 text-xs font-black text-black">
-            L
-          </span>
-          Link
-          <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-orange-600 bg-clip-text text-transparent">
-            Spa
-          </span>
+        <p className="flex items-center justify-center text-lg">
+          <BrandLogo />
         </p>
 
         {/* Header */}

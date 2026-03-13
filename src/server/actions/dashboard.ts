@@ -15,6 +15,22 @@ interface ActionState {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Extract the storage path from a full Supabase public URL.
+ * e.g. ".../storage/v1/object/public/avatars/abc-123/avatar-1710000000.jpg"
+ *   → "abc-123/avatar-1710000000.jpg"
+ */
+function extractStoragePath(publicUrl: string): string | null {
+  try {
+    const marker = "/storage/v1/object/public/avatars/";
+    const idx = publicUrl.indexOf(marker);
+    if (idx === -1) return null;
+    return decodeURIComponent(publicUrl.slice(idx + marker.length));
+  } catch {
+    return null;
+  }
+}
+
 function parseLinkForm(formData: FormData) {
   return {
     type: formData.get("type") as string,
@@ -109,6 +125,14 @@ export async function uploadAvatar(
 
   const supabase = await createClient();
 
+  // Delete the old avatar file from Storage (if one exists)
+  if (spa.logo_url) {
+    const oldPath = extractStoragePath(spa.logo_url);
+    if (oldPath) {
+      await supabase.storage.from("avatars").remove([oldPath]);
+    }
+  }
+
   // Upload to Supabase Storage
   const { error: uploadError } = await supabase.storage
     .from("avatars")
@@ -152,6 +176,14 @@ export async function removeAvatar(
   const { spa } = await requireSpa();
 
   const supabase = await createClient();
+
+  // Delete the file from Storage
+  if (spa.logo_url) {
+    const oldPath = extractStoragePath(spa.logo_url);
+    if (oldPath) {
+      await supabase.storage.from("avatars").remove([oldPath]);
+    }
+  }
 
   // Clear logo_url in database
   const { error } = await supabase
